@@ -1,6 +1,8 @@
 library(tidyverse)
 library(tidytext)
 library(psych)
+library(quanteda)
+
 
 tokenized_data<-read_feather("Data/tokenized data.feather")
 
@@ -109,6 +111,17 @@ unclass(efa[[7]]$loadings)
 unclass(efa[[8]]$loadings)
 unclass(efa[[9]]$loadings)
 
+
+tokenized_data<-tokenized_data%>%
+  group_by(`Source title`, word)%>%
+  summarise(n = sum(n))%>%
+  cast_dfm(document = `Source title`, term = word, value = n)
+
+
+tstat_dist <- as.dist(textstat_dist(tokenized_data))
+clust <- hclust(tstat_dist)
+
+plot(clust)
 
 write_rds(cor_mat, "word_frequency_cor_mat.rds")
 write_rds(cor_mat_df, "word_frequency_cor_mat_df.rds")
